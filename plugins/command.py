@@ -13,6 +13,7 @@ async def start_command(client, message):
 
 
 # Filter for non-command messages (text not starting with '/')
-@Client.on_message(filters.text & ~filters.command())
+@Client.on_message(filters.text & ~filters.command(prefix="/"))
 async def non_command_handler(client, message):
     await message.reply_text("Bot is in work!")
+#@Client.on_message(filters.text & ~filters.command(prefix="/"))

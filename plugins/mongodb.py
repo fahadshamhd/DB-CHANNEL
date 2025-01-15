@@ -3,6 +3,13 @@ from pyrogram.types import InlineKeyboardButton, InlineKeyboardMarkup
 from pymongo import MongoClient
 from info import *
 import asyncio
+import logging
+
+# Set up logging
+logging.basicConfig(
+    level=logging.ERROR,
+    format="%(asctime)s - %(levelname)s - %(message)s"
+)
 
 CHANNEL_ID = "@FsTesy"  # Your Telegram channel username or ID
 
@@ -19,7 +26,7 @@ movies_collection = db[COLLECTION_NAME]
 cancel_process = False
 skip_count = 0  # Default skip count
 
-@Client.on_message(filters.command("setskip"))
+@app.on_message(filters.command("setskip"))
 async def set_skip(client, message):
     """
     Command to set the number of files to skip before starting the send process.
@@ -32,7 +39,7 @@ async def set_skip(client, message):
     except (IndexError, ValueError):
         await message.reply_text("❌ Invalid format! Use `/setskip <number>` (e.g., `/setskip 5`).")
 
-@Client.on_message(filters.command("sendmovies"))
+@app.on_message(filters.command("sendmovies"))
 async def send_movies(client, message):
     global cancel_process, skip_count
     cancel_process = False  # Reset cancel flag
@@ -82,15 +89,12 @@ async def send_movies(client, message):
             if "FloodWait" in str(e):
                 # Extract flood wait time
                 delay = int(str(e).split("FloodWait:")[1].split(" ")[1])
-                await client.send_message(
-                    message.chat.id,
-                    f"⏳ Flood wait detected. Waiting for {delay} seconds..."
-                )
+                print(f"⏳ Flood wait detected. Waiting for {delay} seconds...")
                 await asyncio.sleep(delay)  # Wait for the flood wait time
                 continue  # Retry the same file
             else:
-                # Handle other errors gracefully and notify the user
-                await client.send_message(message.chat.id, f"Error sending file {file_name}: {e}")
+                # Log the error in the terminal
+                logging.error(f"Error sending file {file_name}: {e}")
                 continue
 
         # Update status in the user chat
@@ -102,7 +106,7 @@ async def send_movies(client, message):
     # Notify completion
     await status_message.edit_text("✅ All movies have been sent successfully!")
 
-@Client.on_callback_query()
+@app.on_callback_query()
 async def handle_callbacks(client, callback_query):
     global cancel_process
 

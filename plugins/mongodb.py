@@ -19,7 +19,7 @@ movies_collection = db[COLLECTION_NAME]
 cancel_process = False
 skip_count = 0  # Default skip count
 
-@app.on_message(filters.command("setskip"))
+@Client.on_message(filters.command("setskip"))
 async def set_skip(client, message):
     """
     Command to set the number of files to skip before starting the send process.
@@ -32,7 +32,7 @@ async def set_skip(client, message):
     except (IndexError, ValueError):
         await message.reply_text("❌ Invalid format! Use `/setskip <number>` (e.g., `/setskip 5`).")
 
-@app.on_message(filters.command("sendmovies"))
+@Client.on_message(filters.command("sendmovies"))
 async def send_movies(client, message):
     global cancel_process, skip_count
     cancel_process = False  # Reset cancel flag
@@ -102,7 +102,7 @@ async def send_movies(client, message):
     # Notify completion
     await status_message.edit_text("✅ All movies have been sent successfully!")
 
-@app.on_callback_query()
+@Client.on_callback_query()
 async def handle_callbacks(client, callback_query):
     global cancel_process
 

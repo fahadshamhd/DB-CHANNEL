@@ -88,10 +88,6 @@ async def send_movies(client, message):
                 )
                 await asyncio.sleep(delay)  # Wait for the flood wait time
                 continue  # Retry the same file
-            else:
-                # Handle other errors gracefully and notify the user
-                await client.send_message(message.chat.id, f"Error sending file {file_name}: {e}")
-                continue
 
         # Update status in the user chat
         await status_message.edit_text(

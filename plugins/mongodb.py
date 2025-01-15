@@ -17,39 +17,48 @@ movies_collection = db[COLLECTION_NAME]
 
 # Global control variables
 cancel_process = False
-skip_files = False
+skip_count = 0  # Default skip count
+
+@app.on_message(filters.command("setskip"))
+async def set_skip(client, message):
+    """
+    Command to set the number of files to skip before starting the send process.
+    """
+    global skip_count
+    try:
+        # Extract the skip count from the message
+        skip_count = int(message.text.split(" ")[1])
+        await message.reply_text(f"✅ Skip count set to {skip_count} files.")
+    except (IndexError, ValueError):
+        await message.reply_text("❌ Invalid format! Use `/setskip <number>` (e.g., `/setskip 5`).")
 
 @app.on_message(filters.command("sendmovies"))
 async def send_movies(client, message):
-    global cancel_process, skip_files
+    global cancel_process, skip_count
     cancel_process = False  # Reset cancel flag
-    skip_files = False      # Reset skip flag
 
     movies = list(movies_collection.find())
     if not movies:
         await client.send_message(message.chat.id, "No movies found in the database.")
         return
 
-    # Notify user about the process start with cancel and skip buttons
+    # Notify user about the process start with cancel button
     keyboard = InlineKeyboardMarkup(
-        [[
-            InlineKeyboardButton("❌ Cancel", callback_data="cancel_process"),
-            InlineKeyboardButton("⏭ Skip Files", callback_data="skip_files")
-        ]]
+        [[InlineKeyboardButton("❌ Cancel", callback_data="cancel_process")]]
     )
     status_message = await client.send_message(
         message.chat.id,
-        f"Starting to send {len(movies)} movies to the channel...",
+        f"Starting to send {len(movies)} movies to the channel after skipping {skip_count} files...",
         reply_markup=keyboard
     )
 
-    for index, movie in enumerate(movies, start=1):
+    # Apply the skip count
+    movies_to_send = movies[skip_count:] if skip_count < len(movies) else []
+
+    for index, movie in enumerate(movies_to_send, start=1):
         if cancel_process:
             await status_message.edit_text("❌ Process canceled by the user.")
             return
-
-        if skip_files:
-            continue  # Skip the file and move to the next one
 
         file_id = movie.get("file_id")
         file_name = movie.get("file_name", "Unknown File Name")
@@ -86,23 +95,18 @@ async def send_movies(client, message):
 
         # Update status in the user chat
         await status_message.edit_text(
-            f"Sent {index}/{len(movies)} movies to the channel...",
+            f"Sent {index}/{len(movies_to_send)} movies to the channel...",
             reply_markup=keyboard
         )
 
     # Notify completion
     await status_message.edit_text("✅ All movies have been sent successfully!")
 
-
 @app.on_callback_query()
 async def handle_callbacks(client, callback_query):
-    global cancel_process, skip_files
+    global cancel_process
 
     if callback_query.data == "cancel_process":
         cancel_process = True
         await callback_query.message.edit_text("❌ Process canceled by the user.")
         await callback_query.answer("Process canceled!")
-
-    elif callback_query.data == "skip_files":
-        skip_files = True
-        await callback_query.answer("Skipping remaining files!")

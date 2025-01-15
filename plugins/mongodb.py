@@ -82,11 +82,14 @@ async def send_movies(client, message):
         except FloodWait as e:
                 # Extract flood wait time
                 delay = e.value
-                await client.send_message(
+                err = await client.send_message(
                     message.chat.id,
                     f"⏳ Flood wait detected. Waiting for {delay} seconds..."
                 )
+                
                 await asyncio.sleep(delay)  # Wait for the flood wait time
+                await err.delete()
+                delay = 0
                 continue  # Retry the same file
 
         # Update status in the user chat

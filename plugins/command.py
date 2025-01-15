@@ -9,6 +9,6 @@ import asyncio
 #    """Handle the /start command."""
 @Client.on_message(filters.private & filters.command("start"))
 async def start_command(client, message):
-    await message.reply("Bot is in work!")
+    await message.reply("Only For Admins")
 
 

@@ -81,7 +81,9 @@ async def send_movies(client, message):
         # Create the message
         movie_message = f"🎬 **{file_name}**\n📦 Size: {file_size_mb} MB\n\n{caption}"
 
-        while True:
+        sent_successfully = False
+
+        while not sent_successfully:
             try:
                 # Send the file to the channel
                 await client.send_document(
@@ -90,7 +92,7 @@ async def send_movies(client, message):
                     caption=movie_message
                 )
                 sent_file_ids.add(file_id)  # Track sent file ID
-                break
+                sent_successfully = True
             except FloodWait as e:
                 # Handle flood wait error
                 delay = e.value
@@ -104,7 +106,7 @@ async def send_movies(client, message):
                 # Log the error and increment failed count
                 logging.error(f"Error sending file {file_name}: {e}")
                 failed_count += 1
-                break
+                sent_successfully = True  # Break the loop even on other errors
 
         # Update status in the user chat
         await status_message.edit_text(

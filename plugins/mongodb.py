@@ -6,7 +6,7 @@ import asyncio
 CHANNEL_ID = "@FsTesy"    # Your Telegram channel username or ID
 
 # MongoDB Configuration
-MONGO_URI = "mongodb+srv://fsbotz:fsbotztg@fsbotz.s3jw7.mongodb.net/?retryWrites=true&w=majority&appName=FsBotz")  # Replace with your MongoDB URI
+MONGO_URI = "mongodb+srv://fsbotz:fsbotztg@fsbotz.s3jw7.mongodb.net/?retryWrites=true&w=majority&appName=FsBotz"  # Replace with your MongoDB URI
 DB_NAME = "fsbotz"                # Replace with your database name
 COLLECTION_NAME = "Telegram_files"                # Replace with your collection name
 

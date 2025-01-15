@@ -79,23 +79,24 @@ async def send_movies(client, message):
         movie_message = f"🎬 **{file_name}**\n📦 Size: {file_size_mb} MB\n\n{caption}"
 
         # Send the file to the channel
-        try:
-            await client.send_document(
-                chat_id=CHANNEL_ID,
-                document=file_id,
-                caption=movie_message
-            )
-        except Exception as e:
-            if "FloodWait" in str(e):
-                # Extract flood wait time
-                delay = int(str(e).split("FloodWait:")[1].split(" ")[1])
-                print(f"⏳ Flood wait detected. Waiting for {delay} seconds...")
-                await asyncio.sleep(delay)  # Wait for the flood wait time
-                continue  # Retry the same file
-            else:
-                # Log the error in the terminal
-                logging.error(f"Error sending file {file_name}: {e}")
-                continue
+        while True:
+            try:
+                await client.send_document(
+                    chat_id=CHANNEL_ID,
+                    document=file_id,
+                    caption=movie_message
+                )
+                break  # Break the loop if sending is successful
+            except Exception as e:
+                if "FloodWait" in str(e):
+                    # Extract flood wait time
+                    delay = int(str(e).split("FloodWait:")[1].split(" ")[1])
+                    logging.error(f"⏳ Flood wait detected. Waiting for {delay} seconds...")
+                    await asyncio.sleep(delay)  # Wait for the flood wait time
+                else:
+                    # Log the error in the terminal
+                    logging.error(f"Error sending file {file_name}: {e}")
+                    break
 
         # Update status in the user chat
         await status_message.edit_text(

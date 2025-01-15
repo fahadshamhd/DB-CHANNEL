@@ -3,12 +3,12 @@ from pymongo import MongoClient
 from info import *
 import asyncio
 
-CHANNEL_ID = "@your_channel"    # Your Telegram channel username or ID
+CHANNEL_ID = "@FsTesy"    # Your Telegram channel username or ID
 
 # MongoDB Configuration
-MONGO_URI = "mongodb://localhost:27017/"  # Replace with your MongoDB URI
-DB_NAME = "movie_database"                # Replace with your database name
-COLLECTION_NAME = "movies"                # Replace with your collection name
+MONGO_URI = "mongodb+srv://fsbotz:fsbotztg@fsbotz.s3jw7.mongodb.net/?retryWrites=true&w=majority&appName=FsBotz")  # Replace with your MongoDB URI
+DB_NAME = "fsbotz"                # Replace with your database name
+COLLECTION_NAME = "Telegram_files"                # Replace with your collection name
 
 mongo_client = MongoClient(MONGO_URI)
 db = mongo_client[DB_NAME]

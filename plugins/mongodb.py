@@ -35,6 +35,7 @@ async def send_files(client, message):
     global cancel_process, skip_count
     cancel_process = False  # Reset cancel flag
     #MongoDB Setup Start
+    DBUSER=message.from_user.id
     fs = await client.ask(chat_id = message.from_user.id, text = "Now Send Me The MongoDB URL")
     MONGO_URI=fs.text
     fs2= await client.ask(chat_id = message.from_user.id, text = "Now Send Me The DB Name")
@@ -85,10 +86,8 @@ async def send_files(client, message):
             if file_id:
                 # Certain file types based on their extensions or other metadata
                 if file_id.endswith(('.jpg', '.jpeg', '.png', '.bmp', '.gif')):
-                    await client.send_photo(
-                        chat_id=CHANNEL_ID,
-                        photo=file_id,
-                        caption=file_message
+                    await client.send_message(
+                        chat_id=DBUSER,text=f"Photo Skipped"
                     )
                 elif file_id.endswith(('.mp4', '.mkv', '.avi', '.mov')):
                     await client.send_video(
@@ -97,10 +96,8 @@ async def send_files(client, message):
                         caption=file_message
                     )
                 elif file_id.endswith(('.mp3', '.wav', '.aac')):
-                    await client.send_audio(
-                        chat_id=CHANNEL_ID,
-                        audio=file_id,
-                        caption=file_message
+                    await client.send_message(
+                        chat_id=DBUSER,text=f"Photo Skipped"
                     )
                 else:
                     await client.send_document(
@@ -116,7 +113,9 @@ async def send_files(client, message):
 
         except FloodWait as e:
             logging.warning(f'Flood wait of {e.value} seconds detected')
+            fs_wait = await client.send_message(chat_id=DBUSER,text=f"Flood wait of {e.value} seconds detected")
             await asyncio.sleep(e.value)
+            await fs_wait.delete()
         except Exception as e:
             logging.error(f'Failed to send file: {e}')
 

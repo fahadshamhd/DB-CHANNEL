@@ -61,7 +61,6 @@ async def send_files(client, message):
             file_name = file.get("file_name", "Unknown File Name")
             file_size = file.get("file_size", "Unknown Size")
             caption = file.get("caption", "No caption provided.")
-            file_type = file.get("file_type")  # e.g., document, video, photo, audio
 
             # Format file size for readability
             file_size_mb = round(file_size / (1024 * 1024), 2) if isinstance(file_size, int) else file_size
@@ -69,35 +68,37 @@ async def send_files(client, message):
             # Create the message caption
             file_message = f"**{file_name}**\n📦 Size: {file_size_mb} MB\n\n{caption}"
 
-            # Send the file to the channel based on its type
-            if file_type == "document":
-                await client.send_document(
-                    chat_id=CHANNEL_ID,
-                    document=file_id,
-                    caption=file_message
-                )
-            elif file_type == "video":
-                await client.send_video(
-                    chat_id=CHANNEL_ID,
-                    video=file_id,
-                    caption=file_message
-                )
-            elif file_type == "photo":
-                await client.send_photo(
-                    chat_id=CHANNEL_ID,
-                    photo=file_id,
-                    caption=file_message
-                )
-            elif file_type == "audio":
-                await client.send_audio(
-                    chat_id=CHANNEL_ID,
-                    audio=file_id,
-                    caption=file_message
-                )
+            # Detect file type based on file extension or metadata
+            if file_id:
+                # Certain file types based on their extensions or other metadata
+                if file_id.endswith(('.jpg', '.jpeg', '.png', '.bmp', '.gif')):
+                    await client.send_photo(
+                        chat_id=CHANNEL_ID,
+                        photo=file_id,
+                        caption=file_message
+                    )
+                elif file_id.endswith(('.mp4', '.mkv', '.avi', '.mov')):
+                    await client.send_video(
+                        chat_id=CHANNEL_ID,
+                        video=file_id,
+                        caption=file_message
+                    )
+                elif file_id.endswith(('.mp3', '.wav', '.aac')):
+                    await client.send_audio(
+                        chat_id=CHANNEL_ID,
+                        audio=file_id,
+                        caption=file_message
+                    )
+                else:
+                    await client.send_document(
+                        chat_id=CHANNEL_ID,
+                        document=file_id,
+                        caption=file_message
+                    )
             else:
                 await client.send_message(
                     chat_id=CHANNEL_ID,
-                    text=f"Unsupported file type: {file_type}"
+                    text=f"Invalid file ID: {file_id}"
                 )
 
         except FloodWait as e:

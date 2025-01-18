@@ -35,17 +35,17 @@ async def send_files(client, message):
     global cancel_process, skip_count
     cancel_process = False  # Reset cancel flag
     #MongoDB Setup Start
-    fs = await bot.ask(chat_id = message.from_user.id, text = "Now Send Me The MongoDB URL")
+    fs = await client.ask(chat_id = message.from_user.id, text = "Now Send Me The MongoDB URL")
     MONGO_URI=fs.text
-    fs2= await bot.ask(chat_id = message.from_user.id, text = "Now Send Me The DB Name")
+    fs2= await client.ask(chat_id = message.from_user.id, text = "Now Send Me The DB Name")
     DB_NAME=fs2.text
-    fs3= await bot.ask(chat_id = message.from_user.id, text = "Now Send Me The Collection Name")
+    fs3= await client.ask(chat_id = message.from_user.id, text = "Now Send Me The Collection Name")
     COLLECTION_NAME=fs3.text
     mongo_client = MongoClient(MONGO_URI)
     db = mongo_client[DB_NAME]
     movies_collection = db[COLLECTION_NAME]
     #MongoDB Setup End
-    fsd= await bot.ask(chatid = message.from_userid, text= "Now Send Me The Destination Channel ID Or Username\n Make Sure That Bot Is Admin In The Destination Challe")
+    fsd= await client.ask(chatid = message.from_userid, text= "Now Send Me The Destination Channel ID Or Username\n Make Sure That Bot Is Admin In The Destination Challe")
     CHANNEL_ID=fsd.text
     
     files = list(movies_collection.find())

@@ -8,7 +8,6 @@ logging.getLogger("pyrogram").setLevel(logging.ERROR)
 logging.getLogger("cinemagoer").setLevel(logging.ERROR)
 
 from pyrogram import Client, idle
-from database.users_chats_db import db
 from info import *
 from utils import temp
 from typing import Union, Optional, AsyncGenerator

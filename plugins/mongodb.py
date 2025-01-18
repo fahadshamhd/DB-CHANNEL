@@ -75,7 +75,7 @@ async def send_movies(client, message):
                 caption=movie_message
             )
         except FloodWait as e:
-            logging.warning(f'Flood wait of {e.x} seconds detected')
+            logging.warning(f'Flood wait of {e.value} seconds detected')
             await asyncio.sleep(e.value)
         except Exception as e:
             logging.error(f'Failed to send movie: {e}')

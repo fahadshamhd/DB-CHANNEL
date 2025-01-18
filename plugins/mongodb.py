@@ -45,7 +45,7 @@ async def send_files(client, message):
     db = mongo_client[DB_NAME]
     movies_collection = db[COLLECTION_NAME]
     #MongoDB Setup End
-    fsd= await client.ask(chatid = message.from_userid, text= "Now Send Me The Destination Channel ID Or Username\n Make Sure That Bot Is Admin In The Destination Challe")
+    fsd= await client.ask(chatid = message.from_user.id, text= "Now Send Me The Destination Channel ID Or Username\n Make Sure That Bot Is Admin In The Destination Challe")
     CHANNEL_ID=fsd.text
     
     files = list(movies_collection.find())

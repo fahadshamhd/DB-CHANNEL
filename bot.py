@@ -43,8 +43,6 @@ async def start():
             spec.loader.exec_module(load)
             sys.modules["plugins." + plugin_name] = load
             print("FsBotz Imported => " + plugin_name)
-    temp.BANNED_USERS = b_users
-    temp.BANNED_CHATS = b_chats
     me = await FsBotz.get_me()
     temp.BOT = FsBotz
     temp.ME = me.id

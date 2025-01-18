@@ -7,7 +7,7 @@ id_pattern = re.compile(r'^.\d+$')
 SESSION = environ.get('SESSION', 'FsBotz')
 API_ID = int("17432758")
 API_HASH = "c9e31fda0ce722e3f3033a9d4f140783"
-BOT_TOKEN = environ.get('BOT_TOKEN', "8049507221:AAF7jOR4H9JESJJV2ZO-U0NbGEG_4P_Xmig")
+BOT_TOKEN = environ.get('BOT_TOKEN', "7585998373:AAHH2L5DFj9ay5MQC4eENZUvKiIrdck-4Dk")
 
 
 # This Pictures Is For Start Message Picture, You Can Add Multiple By Giving One Space Between Each.

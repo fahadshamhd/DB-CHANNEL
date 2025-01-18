@@ -30,62 +30,88 @@ async def set_skip(client, message):
     except (IndexError, ValueError):
         await message.reply_text("❌ Invalid format! Use `/setskip <number>` (e.g., `/setskip 5`).")
 
-@Client.on_message(filters.command("sendmovies"))
-async def send_movies(client, message):
+@Client.on_message(filters.command("sendfiles"))
+async def send_files(client, message):
     global cancel_process, skip_count
     cancel_process = False  # Reset cancel flag
 
-    movies = list(movies_collection.find())
-    if not movies:
-        await client.send_message(message.chat.id, "No movies found in the database.")
+    files = list(movies_collection.find())
+    if not files:
+        await client.send_message(message.chat.id, "No files found in the database.")
         return
 
     # Notify user about the process start with cancel button
     keyboard = InlineKeyboardMarkup([[InlineKeyboardButton("❌ Cancel", callback_data="cancel_process")]])
     status_message = await client.send_message(
         message.chat.id,
-        f"Starting to send {len(movies)} movies to the channel after skipping {skip_count} files...",
+        f"Starting to send {len(files)} files to the channel after skipping {skip_count} files...",
         reply_markup=keyboard
     )
 
     # Apply the skip count
-    movies_to_send = movies[skip_count:] if skip_count < len(movies) else []
+    files_to_send = files[skip_count:] if skip_count < len(files) else []
 
-    for index, movie in enumerate(movies_to_send, start=1):
+    for index, file in enumerate(files_to_send, start=1):
         if cancel_process:
             await status_message.edit_text("❌ Process canceled by the user.")
             return
 
         try:
-            file_id = movie.get("file_id")
-            file_name = movie.get("file_name", "Unknown File Name")
-            file_size = movie.get("file_size", "Unknown Size")
-            caption = movie.get("caption", "No caption provided.")
+            file_id = file.get("file_id")
+            file_name = file.get("file_name", "Unknown File Name")
+            file_size = file.get("file_size", "Unknown Size")
+            caption = file.get("caption", "No caption provided.")
+            file_type = file.get("file_type")  # e.g., document, video, photo, audio
 
             # Format file size for readability
             file_size_mb = round(file_size / (1024 * 1024), 2) if isinstance(file_size, int) else file_size
 
-            # Create the message
-            movie_message = f"🎬 **{file_name}**\n📦 Size: {file_size_mb} MB\n\n{caption}"
+            # Create the message caption
+            file_message = f"**{file_name}**\n📦 Size: {file_size_mb} MB\n\n{caption}"
 
-            # Send the file to the channel
-            await client.send_document(
-                chat_id=CHANNEL_ID,
-                document=file_id,
-                caption=movie_message
-            )
+            # Send the file to the channel based on its type
+            if file_type == "document":
+                await client.send_document(
+                    chat_id=CHANNEL_ID,
+                    document=file_id,
+                    caption=file_message
+                )
+            elif file_type == "video":
+                await client.send_video(
+                    chat_id=CHANNEL_ID,
+                    video=file_id,
+                    caption=file_message
+                )
+            elif file_type == "photo":
+                await client.send_photo(
+                    chat_id=CHANNEL_ID,
+                    photo=file_id,
+                    caption=file_message
+                )
+            elif file_type == "audio":
+                await client.send_audio(
+                    chat_id=CHANNEL_ID,
+                    audio=file_id,
+                    caption=file_message
+                )
+            else:
+                await client.send_message(
+                    chat_id=CHANNEL_ID,
+                    text=f"Unsupported file type: {file_type}"
+                )
+
         except FloodWait as e:
             logging.warning(f'Flood wait of {e.value} seconds detected')
             await asyncio.sleep(e.value)
         except Exception as e:
-            logging.error(f'Failed to send movie: {e}')
+            logging.error(f'Failed to send file: {e}')
 
         # Update status in the user chat
-        new_status_message = f"Sent {index}/{len(movies_to_send)} movies to the channel..."
+        new_status_message = f"Sent {index}/{len(files_to_send)} files to the channel..."
         if status_message.text != new_status_message:
             await status_message.edit_text(new_status_message, reply_markup=keyboard)
 
-    await status_message.edit_text("✅ All movies have been sent successfully!")
+    await status_message.edit_text("✅ All files have been sent successfully!")
 
 @Client.on_callback_query()
 async def handle_callbacks(client, callback_query):
